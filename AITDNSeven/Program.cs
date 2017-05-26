@@ -57,9 +57,9 @@ namespace AITDNSeven
             Console.WriteLine(message);
         }
 
-        static void AtNameChange(string oldName, string newName) // A simple method to be used with the "NameChangeHandlerDelegate" delegate above.
+        private static void AtNameChange(string oldName, string newName) // A simple method to be used with the "NameChangeHandlerDelegate" delegate above.
         {
-            Console.WriteLine($"The class has changed name from {oldName} to {newName}.");  // This type of string output uses string interpolation (note the $ before the first " and the values in {} curly braces mixed with the text)
+            Console.WriteLine($"The class has changed name from {oldName} to {newName}, this change will be logged.");  // This type of string output uses string interpolation (note the $ before the first " and the values in {} curly braces mixed with the text)
         }
     }
 }
