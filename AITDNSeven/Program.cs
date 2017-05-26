@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
 
 namespace AITDNSeven
 {
@@ -37,6 +38,7 @@ namespace AITDNSeven
             testClass.NameChanges = new NameChangeHandlerDelegate(AtNameChange);  // Set the NameChanges delegate in the TestClass to use the AtNameChanges function declared below.
 
             testClass.Name = "NewName"; // Change the class name to invoke the delegate call from within the class.
+            testClass.Name = "AnotherName"; // Change the class name again to ensure it fires every time.
 
             // This class could have been declared using another approach;
             // var testClass = new ArbitraryClass
@@ -45,6 +47,36 @@ namespace AITDNSeven
             //     Name = "NewName"
             // };
             // Because the properties are in curly braces after the class instantiation, the code knows everything between the braces belongs to that new class, saving the qualifier "testClass." before each statement. 
+
+            /* 
+             * Here we are going to make things a little more complex.
+             * Delegates can call many methods at once, this is because several parts of the program may need to know about the name change, for example the log, the database modifier, the web application, etc.
+             * To do this we use the += operator, and much like in mathematical operations the += operator means "Add this thing onto the object as well (object = object + thing)"
+             */
+
+            // testClass.NameChanges += new NameChangeHandlerDelegate(AtNameChange);    This line would be needed had we not declared it already @ line 38
+            testClass.NameChanges += new NameChangeHandlerDelegate(AtNameChangeTwo);
+
+            // Now when the "Name" property of the class is changed, both methods "AtNameChange" and "AtNameChangeTwo" are run
+
+            testClass.Name = "YetAnotherName";
+
+            // You can also use the -= operator to remove unwanted methods from a delegate
+
+            testClass.NameChanges -= AtNameChange; // You only need to tell the code which funtion to remove.
+            testClass.Name = "YepAnotherOne";
+
+            // Problems exist with this use of delegates as a way of informing the rest of the code about changes, primarily this;
+            try
+            {
+                testClass.NameChanges = null;
+                testClass.Name = "Whoooops";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            // Now the delegate is null, it has no information on which method(s) to use and so throws and exception - understandably.
 
             Console.WriteLine("Press any key to exit....");
             Console.ReadKey();
@@ -60,6 +92,11 @@ namespace AITDNSeven
         private static void AtNameChange(string oldName, string newName) // A simple method to be used with the "NameChangeHandlerDelegate" delegate above.
         {
             Console.WriteLine($"The class has changed name from {oldName} to {newName}, this change will be logged.");  // This type of string output uses string interpolation (note the $ before the first " and the values in {} curly braces mixed with the text)
+        }
+
+        private static void AtNameChangeTwo(string oldName, string newName) // Another method which can be used by our "NameChangeHandlerDelegate" delegate.
+        {
+            Console.WriteLine($"*** {oldName} *** {newName} *** ");  // Another example of string interpolation.
         }
     }
 }
